@@ -32,6 +32,14 @@ public class SQLVariable {
         return sqlVarName;
     }
 
+    public String getSelect() {
+        return switch (this.sqlVarType) {
+            case VALUE, ID -> "v$" + this.sqlVarName;
+            case CONDENSED -> "ng$" + this.sqlVarName + ", bs$" + this.sqlVarName;
+            case UNBOUND_GRAPH -> null;
+        };
+    }
+
     public String getSelect(String tableName) {
         return switch (this.sqlVarType) {
             case VALUE, ID -> tableName + ".v$" + this.sqlVarName;

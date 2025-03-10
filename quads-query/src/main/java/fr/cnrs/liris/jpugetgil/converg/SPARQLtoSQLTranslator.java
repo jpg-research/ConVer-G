@@ -144,6 +144,7 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
                     null,
                     context
             );
+
             case OpQuadPattern opQuadPattern -> new QuadPatternSQLOperator(opQuadPattern, context)
                     .buildSQLQuery();
             case OpSlice opSlice -> new SliceSQLOperator(

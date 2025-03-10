@@ -219,6 +219,20 @@ public class SQLUtils {
     }
 
     /**
+     * Get the min (representation) SQL variable by occurrences
+     *
+     * @param sparqlOccurrences the sparql occurrences
+     * @return the min representation SQL variable
+     */
+    public static SQLVariable getMinSQLVariableByOccurrences(
+            List<SPARQLOccurrence> sparqlOccurrences
+    ) {
+        return sparqlOccurrences.stream()
+                .min(Comparator.comparingInt((SPARQLOccurrence so) -> so.getSqlVariable().getSqlVarType().level)
+                ).orElseThrow().getSqlVariable();
+    }
+
+    /**
      * Generate the projection of the SQL query according to the occurrences
      *
      * @param leftSparqlOccurrences  the left sparql occurrences
