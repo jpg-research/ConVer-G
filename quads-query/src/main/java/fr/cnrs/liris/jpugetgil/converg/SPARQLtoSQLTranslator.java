@@ -61,19 +61,21 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
         Op quadOp = Algebra.toQuadForm(op);
 
         Long startTranslation = System.nanoTime();
-        SQLQuery qu = buildSPARQLContext(quadOp)
-                .finalizeQuery();
+        SQLQuery builtQuery = buildSPARQLContext(quadOp);
+        SQLQuery finalizedQuery = new FinalizeSQLOperator(builtQuery)
+                .buildSQLQuery();
+
         Long endTranslation = System.nanoTime();
 
         queryTranslationDuration
                 .labelValues(String.valueOf(selectQueryCounter.get()))
                 .observe(Unit.nanosToSeconds(endTranslation - startTranslation));
         log.info("[Measure] (Query translation duration): {} ns for query: {};", endTranslation - startTranslation, query);
-        log.info("Query result: {};", qu.getSql());
+        log.info("Query result: {};", finalizedQuery.getSql());
 
         try {
             Long startExec = System.nanoTime();
-            java.sql.ResultSet rs = jdbcConnection.executeSQL(qu.getSql());
+            java.sql.ResultSet rs = jdbcConnection.executeSQL(finalizedQuery.getSql());
             Long endExec = System.nanoTime();
             queryExecutionDuration
                     .labelValues(String.valueOf(selectQueryCounter.get()))
