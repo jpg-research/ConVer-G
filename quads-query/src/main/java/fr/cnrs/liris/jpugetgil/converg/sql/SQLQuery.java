@@ -4,7 +4,6 @@ import com.google.common.collect.Streams;
 import fr.cnrs.liris.jpugetgil.converg.sparql.SPARQLOccurrence;
 import fr.cnrs.liris.jpugetgil.converg.sparql.SPARQLPositionType;
 import fr.cnrs.liris.jpugetgil.converg.sql.operator.FlattenSQLOperator;
-import fr.cnrs.liris.jpugetgil.converg.sql.operator.IdentifySQLOperator;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.algebra.op.OpSlice;
 
@@ -77,7 +76,7 @@ public class SQLQuery {
                 maxSQLVariable.setSqlVarName(maxSQLVariable.getSqlVarName().replace(".", "agg"));
                 return (
                         maxSQLVariable.getSelect() + " as name$" +
-                                maxSQLVariable.getSelect()
+                                maxSQLVariable.getSqlVarName()
                 );
             } else {
                 return (
@@ -108,7 +107,7 @@ public class SQLQuery {
                     }
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining("\n "));
     }
 
     private void flattenAndIdentifyAllVariables() {
@@ -121,10 +120,6 @@ public class SQLQuery {
             if (maxSPARQLOccurrence.getSqlVariable().getSqlVarType() == SQLVarType.CONDENSED) {
                 finalQuery = new FlattenSQLOperator(finalQuery, maxSPARQLOccurrence.getSqlVariable()).buildSQLQuery();
             }
-
-//            if (maxSPARQLOccurrence.getSqlVariable().getSqlVarType() == SQLVarType.ID) {
-//                finalQuery = new IdentifySQLOperator(finalQuery, maxSPARQLOccurrence.getSqlVariable()).buildSQLQuery();
-//            }
         }
 
         this.sql = finalQuery.sql;
