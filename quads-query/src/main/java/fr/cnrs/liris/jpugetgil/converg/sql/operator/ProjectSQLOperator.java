@@ -19,6 +19,8 @@ public class ProjectSQLOperator extends SQLOperator {
 
     SQLQuery query;
 
+    private final String PROJECT_TABLE_NAME = "project_table";
+
     public ProjectSQLOperator(OpProject opProject, SQLQuery query) {
         this.opProject = opProject;
         this.query = query;
@@ -46,19 +48,13 @@ public class ProjectSQLOperator extends SQLOperator {
     @Override
     protected String buildSelect() {
         return this.query.getContext().sparqlVarOccurrences().keySet().stream().map(node -> {
-            SQLVariable maxVariable = SQLUtils.getMaxSQLVariableByOccurrences(
+            SPARQLOccurrence maxSPARQLOccurrence = SQLUtils.getMaxSPARQLOccurrence(
                     this.query.getContext().sparqlVarOccurrences().get(node)
             );
 
-            return switch (maxVariable.getSqlVarType()) {
-                case VALUE, ID:
-                    yield "project_table.v$" + maxVariable.getSqlVarName().replace(".", "agg");
-                case CONDENSED:
-                    yield "project_table.bs$" + maxVariable.getSqlVarName().replace(".", "agg") + ", " +
-                            "project_table.ng$" + maxVariable.getSqlVarName().replace(".", "agg");
-                case UNBOUND_GRAPH:
-                    yield null;
-            };
+            maxSPARQLOccurrence.getSqlVariable().setSqlVarName(maxSPARQLOccurrence.getSqlVariable().getSqlVarName().replace(".", "agg"));
+
+            return maxSPARQLOccurrence.getSqlVariable().getSelect(PROJECT_TABLE_NAME);
         }).collect(Collectors.joining(", "));
     }
 
@@ -67,7 +63,7 @@ public class ProjectSQLOperator extends SQLOperator {
      */
     @Override
     protected String buildFrom() {
-        return "(" + this.query.getSql() + ") project_table";
+        return "(" + this.query.getSql() + ") " + PROJECT_TABLE_NAME;
     }
 
     /**

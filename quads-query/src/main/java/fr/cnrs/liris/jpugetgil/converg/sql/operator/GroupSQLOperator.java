@@ -111,15 +111,15 @@ public class GroupSQLOperator extends SQLOperator {
 
         for (Node node : this.query.getContext().sparqlVarOccurrences()
                 .keySet()) {
-            SQLVariable maxVariable = SQLUtils.getMaxSQLVariableByOccurrences(this.query.getContext().sparqlVarOccurrences().get(node));
+            SPARQLOccurrence maxSPARQLOccurrence = SQLUtils.getMaxSPARQLOccurrence(this.query.getContext().sparqlVarOccurrences().get(node));
 
             // check if the variable is in CONDENSED representation and is a group by variable
             if (
-                    maxVariable.getSqlVarType() == SQLVarType.CONDENSED &&
+                    maxSPARQLOccurrence.getSqlVariable().getSqlVarType() == SQLVarType.CONDENSED &&
                             opGroup.getGroupVars().getVars().stream()
-                                    .anyMatch(var -> var.getVarName().equals(maxVariable.getSqlVarName()))
+                                    .anyMatch(var -> var.getVarName().equals(maxSPARQLOccurrence.getSqlVariable().getSqlVarName()))
             ) {
-                newQuery = new FlattenSQLOperator(newQuery, maxVariable).buildSQLQuery();
+                newQuery = new FlattenSQLOperator(newQuery, maxSPARQLOccurrence.getSqlVariable()).buildSQLQuery();
             }
         }
 
