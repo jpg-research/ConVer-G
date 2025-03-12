@@ -14,6 +14,7 @@ import org.apache.jena.sparql.ARQNotImplemented;
 import org.apache.jena.sparql.algebra.Algebra;
 import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.op.*;
+import org.apache.jena.sparql.core.DatasetImpl;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ResultSetStream;
 import org.slf4j.Logger;
@@ -103,7 +104,7 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
     }
 
     private SQLQuery buildSPARQLContext(Op op) {
-        return buildSPARQLContext(op, new SQLContext(new HashMap<>(), condensedMode));
+        return buildSPARQLContext(op, new SQLContext(new HashMap<>(), condensedMode, null, null));
     }
 
     private SQLQuery buildSPARQLContext(Op op, SQLContext context) {
@@ -116,12 +117,6 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
                     buildSPARQLContext(opUnion.getLeft(), context),
                     buildSPARQLContext(opUnion.getRight(), context)
             ).buildSQLQuery();
-//            case OpLeftJoin opLeftJoin -> {
-//                // Jointure avec un/des variable qui sont dans un optional
-//                buildSPARQLContext(opLeftJoin.getLeft(), context);
-//                buildSPARQLContext(opLeftJoin.getRight(), context);
-//                throw new ARQNotImplemented("TODO: OpLeftJoin not implemented");
-//            }
             case OpGroup opGroup -> new GroupSQLOperator(
                     opGroup,
                     buildSPARQLContext(opGroup.getSubOp(), context)
@@ -138,6 +133,20 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
                     opExtend,
                     buildSPARQLContext(opExtend.getSubOp(), context)
             ).buildSQLQuery();
+            case OpDistinct opDistinct -> new DistinctSQLOperator(
+                    opDistinct,
+                    buildSPARQLContext(opDistinct.getSubOp(), context)
+            ).buildSQLQuery();
+            case OpQuadPattern opQuadPattern -> new QuadPatternSQLOperator(opQuadPattern, context)
+                    .buildSQLQuery();
+            case OpOrder opOrder -> new OrderSQLOperator(
+                    opOrder,
+                    buildSPARQLContext(opOrder.getSubOp(), context)
+            ).buildSQLQuery();
+            case OpSlice opSlice -> new SliceSQLOperator(
+                    opSlice,
+                    buildSPARQLContext(opSlice.getSubOp(), context)
+            ).buildSQLQuery();
             case OpTable ignored -> new SQLQuery(
                     null,
                     context
@@ -146,18 +155,13 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
                     null,
                     context
             );
-            case OpQuadPattern opQuadPattern -> new QuadPatternSQLOperator(opQuadPattern, context)
-                    .buildSQLQuery();
-            case OpSlice opSlice -> new SliceSQLOperator(
-                    opSlice,
-                    buildSPARQLContext(opSlice.getSubOp(), context)
-            ).buildSQLQuery();
-            case OpOrder opOrder -> throw new ARQNotImplemented("TODO: OpOrder not implemented");
+            case OpAssign opAssign -> throw new ARQNotImplemented("TODO: OpAssign not implemented");
+            case OpLateral opLateral -> throw new ARQNotImplemented("TODO: OpLateral not implemented");
+            case OpLeftJoin opLeftJoin -> throw new ARQNotImplemented("TODO: OpLeftJoin not implemented");
             case OpTopN opTopN -> throw new ARQNotImplemented("TODO: OpTopN not implemented");
             case OpPath opPath -> throw new ARQNotImplemented("TODO: OpPath not implemented");
             case OpLabel opLabel -> throw new ARQNotImplemented("TODO: OpLabel not implemented");
-            case OpList opList -> throw new ARQNotImplemented("TODO: OpList not implemented");
-            default -> throw new ARQNotImplemented("TODO: Unknown operator " + op.getClass().getName());
+            default -> throw new ARQNotImplemented("TODO: operator " + op.getClass().getName() + "not implemented");
         };
     }
 }

@@ -98,7 +98,9 @@ public class JoinSQLOperator extends SQLOperator {
                 select + from + where,
                 new SQLContext(
                         mergedMapOccurrences,
-                        leftQuery.getContext().condensedMode()
+                        leftQuery.getContext().condensedMode(),
+                        null,
+                        null
                 ));
     }
 

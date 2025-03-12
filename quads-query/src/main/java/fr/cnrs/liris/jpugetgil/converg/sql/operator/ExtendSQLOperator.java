@@ -30,7 +30,7 @@ public class ExtendSQLOperator extends SQLOperator {
     }
 
     /**
-     * @return the SQL query of the quad pattern
+     * @return the SQL query of extend operator
      */
     @Override
     public SQLQuery buildSQLQuery() {

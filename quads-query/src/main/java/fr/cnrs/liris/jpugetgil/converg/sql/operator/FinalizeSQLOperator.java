@@ -3,11 +3,13 @@ package fr.cnrs.liris.jpugetgil.converg.sql.operator;
 import com.google.common.collect.Streams;
 import fr.cnrs.liris.jpugetgil.converg.sparql.SPARQLOccurrence;
 import fr.cnrs.liris.jpugetgil.converg.sparql.SPARQLPositionType;
+import fr.cnrs.liris.jpugetgil.converg.sparql.expressions.Expression;
 import fr.cnrs.liris.jpugetgil.converg.sql.SQLQuery;
 import fr.cnrs.liris.jpugetgil.converg.sql.SQLUtils;
 import fr.cnrs.liris.jpugetgil.converg.sql.SQLVarType;
 import fr.cnrs.liris.jpugetgil.converg.sql.SQLVariable;
 import org.apache.jena.graph.Node;
+import org.apache.jena.query.Query;
 
 import java.util.List;
 import java.util.Map;
@@ -36,8 +38,12 @@ public class FinalizeSQLOperator extends SQLOperator {
 
         this.query.setSql(select + from + join);
 
-        if (this.query.getOpSlice() != null) {
+        if (this.query.getContext().opSlice() != null) {
             insertLimit();
+        }
+
+        if (this.query.getContext().opOrder() != null) {
+            insertOrder();
         }
 
         return new SQLQuery(
@@ -46,14 +52,33 @@ public class FinalizeSQLOperator extends SQLOperator {
         );
     }
 
+    private void insertOrder() {
+        String select = "SELECT * ";
+        String from = "FROM (" + this.query.getSql() + ") ord_table \n";
+        String orderBy = "ORDER BY " + this.query.getContext().opOrder().getConditions().stream()
+                .map(sortCondition -> {
+                    String direction = switch (sortCondition.direction) {
+                        case Query.ORDER_DEFAULT -> "";
+                        case Query.ORDER_ASCENDING -> "ASC";
+                        case Query.ORDER_DESCENDING -> "DESC";
+                        default -> throw new IllegalStateException("Unexpected value: " + sortCondition.direction);
+                    };
+                    Expression columnExpression = Expression.fromJenaExpr(sortCondition.getExpression());
+                    String column = columnExpression.toNameSQLString();
+                    return column + " " + direction;
+                }).collect(Collectors.joining(", "));
+
+        this.query.setSql(select + from + orderBy);
+    }
+
     private void insertLimit() {
         String select = "SELECT * ";
         String from = " FROM (" + this.query.getSql() + ") sl \n";
         String limit;
-        if (this.query.getOpSlice().getStart() > 0) {
-            limit = "LIMIT " + this.query.getOpSlice().getLength() + " OFFSET " + this.query.getOpSlice().getStart();
+        if (this.query.getContext().opSlice().getStart() > 0) {
+            limit = "LIMIT " + this.query.getContext().opSlice().getLength() + " OFFSET " + this.query.getContext().opSlice().getStart();
         } else {
-            limit = "LIMIT " + this.query.getOpSlice().getLength();
+            limit = "LIMIT " + this.query.getContext().opSlice().getLength();
         }
         this.query.setSql(select + from + limit);
     }
