@@ -62,5 +62,3 @@ jobs:
 
       - name: Run query tests
         run: mvn test -pl quads-query
-
-      - name: Run
