@@ -3,7 +3,9 @@ package fr.cnrs.liris.jpugetgil.converg;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.Logger;
@@ -27,10 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test for SPARQL queries.
  */
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class QuadsQueryAppTest {
     private static final Logger log = LoggerFactory.getLogger(QuadsQueryAppTest.class);
 
-    @Order(1)
+    // v --- this should be integration tests --- v
+    @Order(2)
     @ParameterizedTest
     @ValueSource(strings = {"0", "1", "2", "3", "5", "6", "7", "8", "9", "10", "11"})
     void querySPARQLN(String queryNumber) throws Exception {

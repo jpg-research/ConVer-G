@@ -103,7 +103,7 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
         return null;
     }
 
-    private SQLQuery buildSPARQLContext(Op op) {
+    public SQLQuery buildSPARQLContext(Op op) {
         return buildSPARQLContext(op, new SQLContext(new HashMap<>(), condensedMode, null, null));
     }
 
