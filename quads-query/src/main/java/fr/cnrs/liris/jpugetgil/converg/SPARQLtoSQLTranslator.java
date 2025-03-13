@@ -147,6 +147,11 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
                     opSlice,
                     buildSPARQLContext(opSlice.getSubOp(), context)
             ).buildSQLQuery();
+            case OpLeftJoin opLeftJoin -> new LeftJoinSQLOperator(
+                    opLeftJoin,
+                    buildSPARQLContext(opLeftJoin.getLeft(), context),
+                    buildSPARQLContext(opLeftJoin.getRight(), context)
+            ).buildSQLQuery();
             case OpTable ignored -> new SQLQuery(
                     null,
                     context
@@ -157,7 +162,6 @@ public class SPARQLtoSQLTranslator extends SPARQLLanguageTranslator {
             );
             case OpAssign opAssign -> throw new ARQNotImplemented("TODO: OpAssign not implemented");
             case OpLateral opLateral -> throw new ARQNotImplemented("TODO: OpLateral not implemented");
-            case OpLeftJoin opLeftJoin -> throw new ARQNotImplemented("TODO: OpLeftJoin not implemented");
             case OpTopN opTopN -> throw new ARQNotImplemented("TODO: OpTopN not implemented");
             case OpPath opPath -> throw new ARQNotImplemented("TODO: OpPath not implemented");
             case OpLabel opLabel -> throw new ARQNotImplemented("TODO: OpLabel not implemented");

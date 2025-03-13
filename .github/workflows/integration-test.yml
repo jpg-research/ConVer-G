@@ -19,9 +19,15 @@ jobs:
 
       - name: Wait for Blazegraph to be ready
         run: |
+          time=0
           until curl -sSf 'http://localhost:9999/blazegraph/sparql' > /dev/null; do
             echo "Waiting for Blazegraph..."
+            time=$((time+5))
             sleep 5
+            if [ $time -gt 60 ]; then
+              echo "Blazegraph did not start in time"
+              exit 1
+            fi
           done
 
       - name: Initialize blazegraph datasets
@@ -41,5 +47,20 @@ jobs:
           distribution: 'temurin'
           architecture: x64
 
-      - name: Run tests
-        run: mvn test
+      - name: Run creator tests
+        run: mvn test -pl quads-creator
+
+      - name: Run loader tests
+        run: mvn test -pl quads-loader
+
+      # Run pg-restore
+      - name: Postgres Backup Restore
+        uses: tj-actions/pg-restore@v6
+        with:
+          database_url: "postgres://postgres:password@localhost:5432/converg"
+          backup_file: "quads-query/src/test/resources/dump.sql"
+
+      - name: Run query tests
+        run: mvn test -pl quads-query
+
+      - name: Run

@@ -3,12 +3,7 @@ package fr.cnrs.liris.jpugetgil.converg;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import jakarta.json.Json;
-import org.apache.jena.atlas.json.JSON;
 import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.Logger;
@@ -23,11 +18,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -117,7 +109,7 @@ class QuadsQueryAppTest {
         assertEquals(bgJSONNode.size(), quadsQueryJSONNode.size());
 
         for (int i = 0; i < quadsQueryJSONNode.size(); i++) {
-                assertTrue(findMatchingJSONNode(bgJSONNode, bgJSONNode.get(i)));
+            assertTrue(findMatchingJSONNode(bgJSONNode, bgJSONNode.get(i)));
         }
     }
 
